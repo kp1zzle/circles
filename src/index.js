@@ -1,5 +1,7 @@
 import p5 from 'p5'
+import p5Svg from "p5.js-svg"
 
+p5Svg(p5);
 let sketch = (s) => {
     s.strokeWt = 2
     s.spacing = 50 //150
@@ -24,7 +26,6 @@ let sketch = (s) => {
     }
 
     s.draw = () => {
-
         s.colorMode(s.HSL)
         s.background(s.backgroundColor);
         s.stroke(s.strokeColor)
@@ -108,7 +109,7 @@ let sketch = (s) => {
 
     s.keyPressed = () => {
         if (s.key === "s") {
-            s.save()
+            s.export()
         } else if (s.key === "-") {
             s.pointsPerCircle -= 1
             if (s.pointsPerCircle < 0) {
@@ -133,6 +134,16 @@ let sketch = (s) => {
         } else if (s.key === 'f') {
             s.randomFill = !s.randomFill
         }
+    }
+
+    s.export = () => {
+        let filename = (new Date).toISOString()
+        s.save(filename.concat(".png"))
+        s.createCanvas(window.innerWidth, window.innerHeight, s.SVG)
+        s.draw()
+        s.save(filename.concat(".svg"))
+        s.createCanvas(window.innerWidth, window.innerHeight)
+        s.draw()
     }
 
     s.randomizeColors = () => {
