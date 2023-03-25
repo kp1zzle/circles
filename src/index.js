@@ -87,6 +87,8 @@ let sketch = (s) => {
             s.displacementAmplitude-= event.delta/10;
         } else if (s.keyIsPressed && s.key === 'c') {
             s.minMargin -= event.delta/10;
+        } else if (s.keyIsPressed && s.key === 'v') {
+            s.tightness -= event.delta/50;
         } else {
             s.radius -= event.delta/10;
             // if (s.radius < 0) {
