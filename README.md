@@ -8,3 +8,4 @@
 | `-`/`_` key              | Decrease number of points per shape     |
 | `s` key                  | Save image to local machine             |
 | `SPACE` key              | Change color scheme                     |
+| `ENTER` key              | Change drawing aspect ratio             |

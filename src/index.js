@@ -17,11 +17,13 @@ let sketch = (s) => {
     s.strokeColor = s.color(0)
     s.minMargin = 200
     s.displacementAmplitude = 50
-    s.canvasMode = ""
+    s.canvasWidth = 0
+    s.canvasHeight = 0
+    s.aspectRatioMode = 0 // 0 = window, 1 = 1:1, 2 = 4:5, 3 = 1.91:1, 4 = 9:16
     s.randomFill = false
 
     s.setup = () => {
-        s.createCanvas(window.innerWidth, window.innerHeight)
+        s.setCanvasAspectRatio(s.aspectRatioMode)
         s.frameRate(60)
     }
 
@@ -29,11 +31,11 @@ let sketch = (s) => {
         s.colorMode(s.HSL)
         s.background(s.backgroundColor);
         s.stroke(s.strokeColor)
-        s.columns = s.floor((window.innerWidth - 2* s.minMargin) / (2 * s.radius + s.spacing))
-        s.rows = s.floor((window.innerHeight - 2* s.minMargin) / (2 * s.radius + s.spacing))
+        s.columns = s.floor((s.canvasWidth - 2* s.minMargin) / (2 * s.radius + s.spacing))
+        s.rows = s.floor((s.canvasHeight - 2* s.minMargin) / (2 * s.radius + s.spacing))
         s.strokeWeight(s.strokeWt)
-        let leftPadding = (window.innerWidth - ((s.columns * 2 * s.radius) + ((s.columns - 1) * s.spacing)))/2
-        let topPadding = (window.innerHeight - ((s.rows * 2 * s.radius) + ((s.rows - 1) * s.spacing)))/2
+        let leftPadding = (s.canvasWidth - ((s.columns * 2 * s.radius) + ((s.columns - 1) * s.spacing)))/2
+        let topPadding = (s.canvasHeight - ((s.rows * 2 * s.radius) + ((s.rows - 1) * s.spacing)))/2
         s.translate(leftPadding + s.radius, topPadding)
         s.angleMode(s.DEGREES)
         s.noFill();
@@ -70,7 +72,6 @@ let sketch = (s) => {
 
     s.mouseMoved = () => {
         s.t += 1/5;
-
     }
 
 
@@ -130,7 +131,8 @@ let sketch = (s) => {
         } else if (s.key === " ") {
             s.randomizeColors()
         } else if (s.keyCode === s.ENTER) {
-
+            s.aspectRatioMode = (s.aspectRatioMode + 1) % 5
+            s.setCanvasAspectRatio(s.aspectRatioMode)
         } else if (s.key === 'l') {
             s.emitConfiguration()
         } else if (s.key === 'f') {
@@ -141,11 +143,48 @@ let sketch = (s) => {
     s.export = () => {
         let filename = (new Date).toISOString()
         s.save(filename.concat(".png"))
-        s.createCanvas(window.innerWidth, window.innerHeight, s.SVG)
+        s.createCanvas(s.canvasWidth, s.canvasHeight, s.SVG)
         s.draw()
         s.save(filename.concat(".svg"))
-        s.createCanvas(window.innerWidth, window.innerHeight)
+        s.createCanvas(s.canvasWidth, s.canvasHeight)
         s.draw()
+    }
+
+    s.setCanvasAspectRatio = (mode) => {
+        // 0 = window, 1 = 1:1, 2 = 4:5, 3 = 1.91:1, 4 = 9:16
+        switch (mode) {
+            case 0:
+                // Window
+                s.canvasWidth = window.innerWidth
+                s.canvasHeight = window.innerHeight
+                break
+            case 1:
+                // 1:1
+                s.canvasWidth = s.min(window.innerWidth, window.innerHeight)
+                s.canvasHeight = s.min(window.innerWidth, window.innerHeight)
+                break
+            case 2:
+                // 4:5
+                [s.canvasWidth, s.canvasHeight] = s.returnCanvasDimsForAspectRatio(4, 5)
+                break
+            case 3:
+                // 1.91:1
+                [s.canvasWidth, s.canvasHeight] = s.returnCanvasDimsForAspectRatio(1.91, 1)
+                break
+            case 4:
+                // 9:16
+                [s.canvasWidth, s.canvasHeight] = s.returnCanvasDimsForAspectRatio(9, 16)
+                break
+        }
+
+        s.createCanvas(s.canvasWidth, s.canvasHeight)
+    }
+
+    s.returnCanvasDimsForAspectRatio = (widthRatio, heightRatio) => {
+        let units = s.min(window.innerWidth / widthRatio, window.innerHeight / heightRatio)
+        let width = units * widthRatio
+        let height = units * heightRatio
+        return [width, height]
     }
 
     s.randomizeColors = () => {
