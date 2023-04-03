@@ -71,6 +71,10 @@ let sketch = (s) => {
 
     }
 
+    s.windowResized = () => {
+        s.setCanvasAspectRatio(s.aspectRatioMode)
+    }
+
     // Desktop Controls
 
     s.mouseMoved = () => {
