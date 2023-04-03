@@ -23,6 +23,7 @@ let sketch = (s) => {
     s.randomFill = false
 
     s.setup = () => {
+        s.stopTouchScrolling()
         s.setCanvasAspectRatio(s.aspectRatioMode)
         s.frameRate(60)
     }
@@ -70,10 +71,11 @@ let sketch = (s) => {
 
     }
 
+    // Desktop Controls
+
     s.mouseMoved = () => {
         s.t += 1/5;
     }
-
 
     s.mouseWheel = (event) => {
         if (s.keyIsPressed && s.key === 'z') {
@@ -110,6 +112,8 @@ let sketch = (s) => {
         }
     }
 
+    // Mobile Controls
+
     s.keyPressed = () => {
         if (s.key === "s") {
             s.export()
@@ -139,6 +143,34 @@ let sketch = (s) => {
             s.randomFill = !s.randomFill
         }
     }
+
+    s.touchStarted = () => {
+        switch (s.touches.length) {
+            case 3:
+                s.randomizeColors()
+                break
+            case 4:
+                s.export()
+                break
+        }
+    }
+
+    s.touchMoved = () => {
+        let deltaX = s.mouseX - s.pmouseX
+        let deltaY = s.mouseY - s.pmouseY
+        switch (s.touches.length) {
+            case 1:
+                s.radius += deltaX/10
+                s.displacementAmplitude += deltaY/10
+                break
+            case 2:
+                s.spacing += deltaX/10
+                s.minMargin += deltaY/10
+                break
+        }
+    }
+
+    // Helper Functions
 
     s.export = () => {
         let filename = (new Date).toISOString()
@@ -191,8 +223,6 @@ let sketch = (s) => {
         const paletteList = ['Black&White', 'Mono', 'Analogous', 'Complementary'];
         let colorPalette = s.random(paletteList)
 
-        // INCREASING CONTRAST// if r true, then the background is going to be darker and less saturated, // and the surface more brighter and colorful. If r is false, it supposed to be the other way around.
-        // 1 is darker and less saturated
         let saturation1 = s.random(40, 60);
         let lightness1 = s.random(10, 55);
 
@@ -236,6 +266,20 @@ let sketch = (s) => {
 
     s.emitConfiguration = () => {
         console.log(s)
+    }
+
+    // Prevent scrolling when touching the canvas
+    // Adapted from https://kirkdev.blogspot.com/2020/10/prevent-browser-scrolling-while-drawing.html
+    s.stopTouchScrolling = () => {
+        document.body.addEventListener("touchstart", function (e) {
+            e.preventDefault();
+        }, { passive: false });
+        document.body.addEventListener("touchend", function (e) {
+            e.preventDefault();
+        }, { passive: false });
+        document.body.addEventListener("touchmove", function (e) {
+            e.preventDefault();
+        }, { passive: false });
     }
 
 }
