@@ -25,6 +25,7 @@ let sketch = (s) => {
     s.setup = () => {
         s.stopTouchScrolling()
         s.setCanvasAspectRatio(s.aspectRatioMode)
+        s.setupControlPanel()
         s.frameRate(60)
     }
 
@@ -116,8 +117,6 @@ let sketch = (s) => {
         }
     }
 
-    // Mobile Controls
-
     s.keyPressed = () => {
         if (s.key === "s") {
             s.export()
@@ -141,12 +140,20 @@ let sketch = (s) => {
         } else if (s.keyCode === s.ENTER) {
             s.aspectRatioMode = (s.aspectRatioMode + 1) % 5
             s.setCanvasAspectRatio(s.aspectRatioMode)
+        } else if (s.keyCode === s.ESCAPE) {
+            if (s.select('.controlPanel').style('visibility') === 'hidden') {
+                s.select('.controlPanel').style('visibility', 'visible')
+            } else {
+                s.select('.controlPanel').style('visibility', 'hidden')
+            }
         } else if (s.key === 'l') {
             s.emitConfiguration()
         } else if (s.key === 'f') {
             s.randomFill = !s.randomFill
         }
     }
+
+    // Mobile Controls
 
     s.touchStarted = () => {
         switch (s.touches.length) {
@@ -284,6 +291,15 @@ let sketch = (s) => {
         document.body.addEventListener("touchmove", function (e) {
             e.preventDefault();
         }, { passive: false });
+    }
+
+    s.setupControlPanel = () => {
+        let controlPanel = s.select('.controlPanel')
+        let spacing = s.createInput(s.spacing, 'number');
+        spacing.parent(controlPanel)
+        spacing.changed(() => {
+            s.spacing = +spacing.value()
+        })
     }
 
 }
