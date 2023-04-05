@@ -21,3 +21,21 @@ canvas {
   max-width: 100%;
   max-height: 100%;
 }
+
+.controlPanel {
+  position: absolute;
+  height: 100px;
+  width: 200px;
+  background-color: black;
+  border-width: 5px;
+  border-color: white;
+  visibility: hidden;
+}
+
+input {
+  background: transparent;
+  color: white;
+  padding: 0 20px;
+  width: 50%;
+  align-self: center;
+}
