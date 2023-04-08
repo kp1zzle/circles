@@ -24,18 +24,61 @@ canvas {
 
 .controlPanel {
   position: absolute;
-  height: 100px;
-  width: 200px;
+  max-height: 800px;
+  max-width: 300px;
   background-color: black;
   border-width: 5px;
   border-color: white;
   visibility: hidden;
+  overflow-y:auto;
+  font-family: "Lucida Console", "Courier New", monospace;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-input {
+.controlPanel input {
   background: transparent;
   color: white;
   padding: 0 20px;
-  width: 50%;
-  align-self: center;
+  width: 80%;
+  margin: 10px;
+  font-size: 2em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+}
+
+.controlPanel input:focus {
+  color: greenyellow;
+  outline: none;
+}
+
+.controlPanel label {
+  background: transparent;
+  color: white;
+  margin: 20px 20px 20px 20px;
+  font-size: 1em;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.controlPanel .banner {
+  background: white;
+  color: black;
+  margin: 10px 10px 10px 10px;
+  padding: 5px;
+  font-size: 1em;
+  text-align: center;
+}
+
+.controlPanel p {
+  color: white;
+  text-align: center;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

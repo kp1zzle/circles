@@ -83,6 +83,11 @@ let sketch = (s) => {
     }
 
     s.mouseWheel = (event) => {
+        // Disable all other keys if control panel is visible
+        if (s.controlPanelIsDisplayed()) {
+            return
+        }
+
         if (s.keyIsPressed && s.key === 'z') {
             s.spacing -= event.delta/10;
             // if (s.spacing < 0) {
@@ -118,38 +123,54 @@ let sketch = (s) => {
     }
 
     s.keyPressed = () => {
-        if (s.key === "s") {
-            s.export()
-        } else if (s.key === "-") {
-            s.pointsPerCircle -= 1
-            if (s.pointsPerCircle < 0) {
-                s.pointsPerCircle = 0
+        if (s.keyCode === s.ESCAPE) {
+            if (s.controlPanelIsDisplayed()) {
+                s.select('.controlPanel').style('visibility', 'hidden')
+            } else {
+                s.updateControlPanelValues()
+                s.select('.controlPanel').style('visibility', 'visible')
             }
-            // s.strokeWt -= 0.25
-            // if (s.strokeWt < 0) {
-            //     s.strokeWt = 0
-            // }
-        } else if (s.key === "=") {
-            s.pointsPerCircle += 1
-            if (s.pointsPerCircle > 100) {
-                s.pointsPerCircle = 100
-            }
-            //s.strokeWt += 0.25
-        } else if (s.key === " ") {
-            s.randomizeColors()
-        } else if (s.keyCode === s.ENTER) {
+        }
+
+        // Disable all other keys if control panel is visible
+        if (s.controlPanelIsDisplayed()) {
+            return
+        }
+
+        if (s.keyCode === s.ENTER) {
             s.aspectRatioMode = (s.aspectRatioMode + 1) % 5
             s.setCanvasAspectRatio(s.aspectRatioMode)
-        } else if (s.keyCode === s.ESCAPE) {
-            if (s.select('.controlPanel').style('visibility') === 'hidden') {
-                s.select('.controlPanel').style('visibility', 'visible')
-            } else {
-                s.select('.controlPanel').style('visibility', 'hidden')
-            }
-        } else if (s.key === 'l') {
-            s.emitConfiguration()
-        } else if (s.key === 'f') {
-            s.randomFill = !s.randomFill
+        }
+
+        switch (s.key) {
+            case "s":
+                s.export()
+                break
+            case "-":
+                s.pointsPerCircle -= 1
+                if (s.pointsPerCircle < 0) {
+                    s.pointsPerCircle = 0
+                }
+                // s.strokeWt -= 0.25
+                // if (s.strokeWt < 0) {
+                //     s.strokeWt = 0
+                // }
+                break
+            case "=":
+                s.pointsPerCircle += 1
+                if (s.pointsPerCircle > 100) {
+                    s.pointsPerCircle = 100
+                }
+                //s.strokeWt += 0.25
+                break
+            case " ":
+                s.randomizeColors()
+                break
+            case "l":
+                s.emitConfiguration()
+                break
+            case "f":
+                s.randomFill = !s.randomFill
         }
     }
 
@@ -294,12 +315,42 @@ let sketch = (s) => {
     }
 
     s.setupControlPanel = () => {
-        let controlPanel = s.select('.controlPanel')
-        let spacing = s.createInput(s.spacing, 'number');
-        spacing.parent(controlPanel)
-        spacing.changed(() => {
+        let spacing = s.select('#spacing');
+        spacing.elt.addEventListener("input", () => {
             s.spacing = +spacing.value()
-        })
+        });
+
+        let radius = s.select('#radius');
+        radius.elt.addEventListener("input", () => {
+            s.radius = +radius.value()
+        });
+
+        let disturbance = s.select('#disturbance');
+        disturbance.elt.addEventListener("input", () => {
+            s.displacementAmplitude = +disturbance.value()
+        });
+
+        let min_margin = s.select('#min_margin');
+        min_margin.elt.addEventListener("input", () => {
+            s.minMargin = +min_margin.value()
+        });
+
+        let tightness = s.select('#tightness');
+        tightness.elt.addEventListener("input", () => {
+            s.tightness = +tightness.value()
+        });
+    }
+
+    s.updateControlPanelValues = () => {
+        s.select('#radius').value(s.radius);
+        s.select('#spacing').value(s.spacing);
+        s.select('#disturbance').value(s.displacementAmplitude);
+        s.select('#min_margin').value(s.minMargin);
+        s.select('#tightness').value(s.tightness);
+    }
+
+    s.controlPanelIsDisplayed = () => {
+       return s.select('.controlPanel').style('visibility') === 'visible';
     }
 
 }
