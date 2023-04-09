@@ -21,7 +21,7 @@ let sketch = (s) => {
     s.canvasWidth = 0
     s.canvasHeight = 0
     s.aspectRatioMode = 0 // 0 = window, 1 = 1:1, 2 = 4:5, 3 = 1.91:1, 4 = 9:16
-    s.randomFill = false
+    s.fillCircles = false
     s.hasMotionPermission = false
     s.paused = false
 
@@ -50,7 +50,7 @@ let sketch = (s) => {
         for (let r = 0; r < s.rows; r++) {
             for (let c = 0; c < s.columns; c++) {
                 let rotation = s.noise((r*s.columns)+c, s.t / (s.speedMultiple)) * 360 * 2
-                if (s.randomFill && s.random() <= 0.1) {
+                if (s.fillCircles) {
                     s.fill(s.strokeColor)
                 }
                 s.beginShape();
@@ -172,7 +172,7 @@ let sketch = (s) => {
                 s.emitConfiguration()
                 break
             case "f":
-                s.randomFill = !s.randomFill
+                s.fillCircles = !s.fillCircles
         }
     }
 
