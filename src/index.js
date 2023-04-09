@@ -24,6 +24,9 @@ let sketch = (s) => {
     s.randomFill = false
     s.hasMotionPermission = false
     s.paused = false
+    s.mainCanvas = null
+    s.grainBuffer = null
+    s.grainShader = null
 
     s.setup = () => {
         s.stopTouchScrolling()
@@ -31,6 +34,9 @@ let sketch = (s) => {
         s.setupControlPanel()
         s.displayInstructionPane()
         s.frameRate(60)
+        // shaders can only be used in WEBGL mode
+        s.grainBuffer = s.createGraphics(s.canvasWidth, s.canvasHeight, s.WEBGL);
+        s.grainShader = s.grainBuffer.createShader(vert, frag);
     }
 
     s.draw = () => {
@@ -71,6 +77,9 @@ let sketch = (s) => {
             }
             s.translate(-s.columns * (2* s.radius + s.spacing), 2*s.radius + s.spacing)
         }
+
+        s.applyGrain()
+
         if (!s.paused && s.frameRate() != 0) {
             s.t += (s.speed/s.frameRate())
             s.speed -= ((s.speed - s.minSpeed)/3)/s.frameRate()
@@ -256,7 +265,7 @@ let sketch = (s) => {
                 break
         }
 
-        s.createCanvas(s.canvasWidth, s.canvasHeight)
+        s.mainCanvas = s.createCanvas(s.canvasWidth, s.canvasHeight)
     }
 
     s.returnCanvasDimsForAspectRatio = (widthRatio, heightRatio) => {
@@ -399,6 +408,28 @@ let sketch = (s) => {
         } else {
 
         }
+    }
+
+    s.applyGrain = () => {
+        s.grainBuffer.clear();
+        s.grainBuffer.reset();
+        s.grainBuffer.push();
+        s.grainBuffer.shader(grainShader);
+        s.grainShader.setUniform('source', s.mainCanvas);
+        // if (shouldAnimate) {
+        //     //grainShader.setUniform('noiseSeed', random());
+        //     s.grainShader.setUniform('noiseSeed', frameCount/100);
+        // }
+        s.grainShader.setUniform('noiseAmount', 0.1);
+        s.grainBuffer.rectMode(CENTER);
+        s.grainBuffer.noStroke();
+        s.grainBuffer.rect(0, 0, width, height);
+        s.grainBuffer.pop();
+
+        s.clear();
+        s.push();
+        s.image(grainBuffer, 0, 0);
+        s.pop();
     }
 
 }
