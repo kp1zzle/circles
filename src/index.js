@@ -11,7 +11,8 @@ let sketch = (s) => {
     s.pointsPerCircle = 10
     s.tightness = 0
     s.t = 0
-    s.speed = 1;
+    s.minSpeed = 20;
+    s.speed = s.minSpeed; // Per second
     s.speedMultiple = 80
     s.backgroundColor = s.color(255)
     s.strokeColor = s.color(0)
@@ -21,11 +22,14 @@ let sketch = (s) => {
     s.canvasHeight = 0
     s.aspectRatioMode = 0 // 0 = window, 1 = 1:1, 2 = 4:5, 3 = 1.91:1, 4 = 9:16
     s.randomFill = false
+    s.hasMotionPermission = false
+    s.paused = false
 
     s.setup = () => {
         s.stopTouchScrolling()
         s.setCanvasAspectRatio(s.aspectRatioMode)
         s.setupControlPanel()
+        s.displayInstructionPane()
         s.frameRate(60)
     }
 
@@ -67,9 +71,11 @@ let sketch = (s) => {
             }
             s.translate(-s.columns * (2* s.radius + s.spacing), 2*s.radius + s.spacing)
         }
-        // s.t += s.speed
-        // s.pointsPerCircle++
-
+        if (!s.paused && s.frameRate() != 0) {
+            s.t += (s.speed/s.frameRate())
+            s.speed -= ((s.speed - s.minSpeed)/3)/s.frameRate()
+            s.speed = s.max(s.speed, s.minSpeed)
+        }
     }
 
     s.windowResized = () => {
@@ -79,7 +85,8 @@ let sketch = (s) => {
     // Desktop Controls
 
     s.mouseMoved = () => {
-        s.t += 1/5;
+        // s.t += 1/5;
+        s.speed += (s.abs(s.mouseX - s.pmouseX) + s.abs(s.mouseY - s.pmouseY))/100
     }
 
     s.mouseWheel = (event) => {
@@ -115,21 +122,16 @@ let sketch = (s) => {
     }
 
     s.mouseClicked = () => {
-        if (s.speed === 1) {
-            s.speed = 0
-        } else {
-            s.speed = 1
+        if (s.controlPanelIsDisplayed()) {
+            return
         }
+
+        s.paused = !s.paused
     }
 
     s.keyPressed = () => {
         if (s.keyCode === s.ESCAPE) {
-            if (s.controlPanelIsDisplayed()) {
-                s.select('.controlPanel').style('visibility', 'hidden')
-            } else {
-                s.updateControlPanelValues()
-                s.select('.controlPanel').style('visibility', 'visible')
-            }
+            s.toggleControlPanelVisibility()
         }
 
         // Disable all other keys if control panel is visible
@@ -182,7 +184,8 @@ let sketch = (s) => {
                 s.randomizeColors()
                 break
             case 4:
-                s.export()
+                //s.export()
+                s.toggleControlPanelVisibility()
                 break
         }
     }
@@ -200,6 +203,18 @@ let sketch = (s) => {
                 s.minMargin += deltaY/10
                 break
         }
+    }
+
+    s.deviceMoved = () => {
+        s.speed += (s.abs(s.accelerationX) + s.abs(s.accelerationY) + s.abs(s.accelerationZ))/4
+        // let dX = s.rotationX - s.pRotationX
+        // let dY = s.rotationY - s.pRotationY
+        // let dZ = s.rotationZ - s.pRotationZ
+        // s.t += (dX + dY + dZ) /3;
+    }
+
+    s.deviceShaken = () => {
+        s.randomizeColors()
     }
 
     // Helper Functions
@@ -303,14 +318,21 @@ let sketch = (s) => {
     // Prevent scrolling when touching the canvas
     // Adapted from https://kirkdev.blogspot.com/2020/10/prevent-browser-scrolling-while-drawing.html
     s.stopTouchScrolling = () => {
+        let canvas = s.select('canvas').elt
         document.body.addEventListener("touchstart", function (e) {
-            e.preventDefault();
+            if (e.target == canvas) {
+                e.preventDefault();
+            }
         }, { passive: false });
         document.body.addEventListener("touchend", function (e) {
-            e.preventDefault();
+            if (e.target == canvas) {
+                e.preventDefault();
+            }
         }, { passive: false });
         document.body.addEventListener("touchmove", function (e) {
-            e.preventDefault();
+            if (e.target == canvas) {
+                e.preventDefault();
+            }
         }, { passive: false });
     }
 
@@ -339,20 +361,61 @@ let sketch = (s) => {
         tightness.elt.addEventListener("input", () => {
             s.tightness = +tightness.value()
         });
+
+        let closeButton = s.select('#mobileWelcomeScreen #closeButton')
+        closeButton.elt.addEventListener("click",() => {
+            s.select('#mobileWelcomeScreen').style('visibility', 'hidden');
+        });
     }
 
     s.updateControlPanelValues = () => {
-        s.select('#radius').value(s.radius);
-        s.select('#spacing').value(s.spacing);
-        s.select('#disturbance').value(s.displacementAmplitude);
-        s.select('#min_margin').value(s.minMargin);
-        s.select('#tightness').value(s.tightness);
+        s.select('#radius').value(s.round(s.radius, 2));
+        s.select('#spacing').value(s.round(s.spacing, 2));
+        s.select('#disturbance').value(s.round(s.displacementAmplitude, 2));
+        s.select('#min_margin').value(s.round(s.minMargin, 2));
+        s.select('#tightness').value(s.round(s.tightness, 2));
     }
 
     s.controlPanelIsDisplayed = () => {
-       return s.select('.controlPanel').style('visibility') === 'visible';
+       return s.select('#controlPanel').style('visibility') === 'visible';
+    }
+
+    s.toggleControlPanelVisibility = () => {
+        if (s.controlPanelIsDisplayed()) {
+            s.select('#controlPanel').style('visibility', 'hidden')
+        } else {
+            s.updateControlPanelValues()
+            s.select('#controlPanel').style('visibility', 'visible')
+        }
+    }
+
+    s.isMobileClient = () => {
+        return typeof DeviceMotionEvent !== 'undefined'
+    }
+
+    s.displayInstructionPane = () => {
+        if (s.isMobileClient()) {
+            s.select('#mobileWelcomeScreen').style('visibility', 'visible')
+        } else {
+
+        }
     }
 
 }
 
 const P5 = new p5(sketch);
+
+function requestDeviceMotionPermission() {
+    // feature detect
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission()
+            .then(permissionState => {
+                if (permissionState === 'granted') {
+                    window.addEventListener('devicemotion', () => {});
+                }
+            })
+            .catch(console.error);
+    } else {
+        // handle regular non iOS 13+ devices
+    }
+}

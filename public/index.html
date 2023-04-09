@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<div class="controlPanel">
+<div class="popup" id="controlPanel">
     <div class="banner"> control panel </div>
     <label for="radius">radius</label><input id="radius" type="number" value="0"/>
     <label for="spacing">spacing</label><input id="spacing" type="number" value="0"/>
@@ -15,6 +15,13 @@
     <label for="tightness">tightness</label><input id="tightness" type="number" value="0"/>
     <p>press ESC to close</p>
 </div>
-<!-- inject bundle using html-webpack-plugin -->
+<div class="popup" id="mobileWelcomeScreen" style="visibility: hidden">
+    <div class="banner">
+        <button id="closeButton">X</button>
+        circles
+    </div>
+    <p>by kieran</p>
+    <button onClick="requestDeviceMotionPermission()">Click here to give motion permissions</button>
+</div>
 </body>
 </html>

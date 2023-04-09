@@ -22,7 +22,7 @@ canvas {
   max-height: 100%;
 }
 
-.controlPanel {
+.popup {
   position: absolute;
   max-height: 800px;
   max-width: 300px;
@@ -36,7 +36,7 @@ canvas {
   align-items: flex-start;
 }
 
-.controlPanel input {
+.popup input {
   background: transparent;
   color: white;
   padding: 0 20px;
@@ -49,12 +49,12 @@ canvas {
 
 }
 
-.controlPanel input:focus {
+.popup input:focus {
   color: greenyellow;
   outline: none;
 }
 
-.controlPanel label {
+.popup label {
   background: transparent;
   color: white;
   margin: 20px 20px 20px 20px;
@@ -63,7 +63,7 @@ canvas {
   align-items: flex-start;
 }
 
-.controlPanel .banner {
+.popup .banner {
   background: white;
   color: black;
   margin: 10px 10px 10px 10px;
@@ -72,7 +72,11 @@ canvas {
   text-align: center;
 }
 
-.controlPanel p {
+.popup #closeButton {
+  float: left;
+}
+
+.popup p, .mobileWelcomeScreen {
   color: white;
   text-align: center;
 }
