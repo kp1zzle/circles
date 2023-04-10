@@ -23,5 +23,18 @@
     <p>by kieran</p>
     <button onClick="requestDeviceMotionPermission()">Click here to give motion permissions</button>
 </div>
+<script>
+    function requestDeviceMotionPermission() {
+    // feature detect
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission()
+            .then(permissionState => {
+                if (permissionState === 'granted') {
+                    window.addEventListener('devicemotion', () => {});
+                }
+            })
+            .catch(console.error);
+    }
+}</script>
 </body>
 </html>
