@@ -1,7 +1,7 @@
 import p5 from 'p5'
-import p5Svg from "p5.js-svg"
+//import p5Svg from "p5.js-svg"
 
-p5Svg(p5);
+//p5Svg(p5);
 let sketch = (s) => {
     s.strokeWt = 2
     s.spacing = 50 //150
@@ -24,9 +24,15 @@ let sketch = (s) => {
     s.randomFill = false
     s.hasMotionPermission = false
     s.paused = false
-    s.mainCanvas = null
+    s.mainBuffer = null
     s.grainBuffer = null
     s.grainShader = null
+    s.enableGrain = true
+
+
+    s.preload = () => {
+        s.grainShader = s.loadShader('grain.vert', 'grain.frag')
+    }
 
     s.setup = () => {
         s.stopTouchScrolling()
@@ -34,13 +40,31 @@ let sketch = (s) => {
         s.setupControlPanel()
         s.displayInstructionPane()
         s.frameRate(60)
-        // shaders can only be used in WEBGL mode
-        s.grainBuffer = s.createGraphics(s.canvasWidth, s.canvasHeight, s.WEBGL);
-        s.grainShader = s.grainBuffer.createShader(vert, frag);
+        s.colorMode(s.HSL)
+        s.angleMode(s.DEGREES)
     }
 
     s.draw = () => {
-        s.colorMode(s.HSL)
+        if (s.enableGrain) {
+            s.push()
+        }
+
+        s.drawCircles()
+
+        if (s.enableGrain) {
+            s.pop()
+            s.applyGrain()
+        }
+
+        if (!s.paused && s.frameRate() !== 0) {
+            s.t += (s.speed/s.frameRate())
+            s.speed -= ((s.speed - s.minSpeed)/3)/s.frameRate()
+            s.speed = s.max(s.speed, s.minSpeed)
+        }
+    }
+
+    s.drawCircles = () => {
+        s.push()
         s.background(s.backgroundColor);
         s.stroke(s.strokeColor)
         s.columns = s.floor((s.canvasWidth - 2* s.minMargin) / (2 * s.radius + s.spacing))
@@ -49,7 +73,7 @@ let sketch = (s) => {
         let leftPadding = (s.canvasWidth - ((s.columns * 2 * s.radius) + ((s.columns - 1) * s.spacing)))/2
         let topPadding = (s.canvasHeight - ((s.rows * 2 * s.radius) + ((s.rows - 1) * s.spacing)))/2
         s.translate(leftPadding + s.radius, topPadding)
-        s.angleMode(s.DEGREES)
+
         s.noFill();
         s.curveTightness(s.tightness)
         // s.noLoop()
@@ -77,14 +101,7 @@ let sketch = (s) => {
             }
             s.translate(-s.columns * (2* s.radius + s.spacing), 2*s.radius + s.spacing)
         }
-
-        s.applyGrain()
-
-        if (!s.paused && s.frameRate() != 0) {
-            s.t += (s.speed/s.frameRate())
-            s.speed -= ((s.speed - s.minSpeed)/3)/s.frameRate()
-            s.speed = s.max(s.speed, s.minSpeed)
-        }
+        s.pop()
     }
 
     s.windowResized = () => {
@@ -105,7 +122,7 @@ let sketch = (s) => {
         }
 
         if (s.keyIsPressed && s.key === 'z') {
-            s.spacing -= event.delta/10;
+            s.spacing += event.delta/10;
             // if (s.spacing < 0) {
             //     s.spacing = 5
             // }
@@ -182,6 +199,9 @@ let sketch = (s) => {
                 break
             case "f":
                 s.randomFill = !s.randomFill
+                break
+            case "g":
+                s.enableGrain = !s.enableGrain
         }
     }
 
@@ -231,11 +251,18 @@ let sketch = (s) => {
     s.export = () => {
         let filename = (new Date).toISOString()
         s.save(filename.concat(".png"))
-        s.createCanvas(s.canvasWidth, s.canvasHeight, s.SVG)
+        let prevGrainState = s.enableGrain
+        let prevDrawingContext = s.drawingContext
+        s.enableGrain = false
+        let svgGraphics = s.createGraphics(s.canvasWidth, s.canvasHeight, s.SVG)
+        s.drawingContext = svgGraphics.drawingContext
+        console.log(svgGraphics)
         s.draw()
-        s.save(filename.concat(".svg"))
-        s.createCanvas(s.canvasWidth, s.canvasHeight)
-        s.draw()
+        svgGraphics.save(filename.concat(".svg"))
+        s.enableGrain = prevGrainState
+        s.drawingContext
+        // s.mainBuffer = s.createCanvas(s.canvasWidth, s.canvasHeight)
+
     }
 
     s.setCanvasAspectRatio = (mode) => {
@@ -265,7 +292,14 @@ let sketch = (s) => {
                 break
         }
 
-        s.mainCanvas = s.createCanvas(s.canvasWidth, s.canvasHeight)
+        if (s.mainBuffer == null) {
+            s.mainBuffer = s.createCanvas(s.canvasWidth, s.canvasHeight);
+            s.grainBuffer = s.createGraphics(s.canvasWidth, s.canvasHeight, s.WEBGL);
+        } else {
+            s.mainBuffer.resize(s.canvasWidth, s.canvasHeight);
+            s.grainBuffer.resizeCanvas(s.canvasWidth, s.canvasHeight);
+        }
+
     }
 
     s.returnCanvasDimsForAspectRatio = (widthRatio, heightRatio) => {
@@ -414,21 +448,21 @@ let sketch = (s) => {
         s.grainBuffer.clear();
         s.grainBuffer.reset();
         s.grainBuffer.push();
-        s.grainBuffer.shader(grainShader);
-        s.grainShader.setUniform('source', s.mainCanvas);
+        s.grainBuffer.shader(s.grainShader);
+        s.grainShader.setUniform('source', s.mainBuffer);
         // if (shouldAnimate) {
         //     //grainShader.setUniform('noiseSeed', random());
         //     s.grainShader.setUniform('noiseSeed', frameCount/100);
         // }
-        s.grainShader.setUniform('noiseAmount', 0.1);
-        s.grainBuffer.rectMode(CENTER);
+        s.grainShader.setUniform('noiseAmount', 0.3);
+        s.grainBuffer.rectMode(s.CENTER);
         s.grainBuffer.noStroke();
-        s.grainBuffer.rect(0, 0, width, height);
+        s.grainBuffer.rect(0, 0, s.canvasWidth, s.canvasHeight);
         s.grainBuffer.pop();
 
         s.clear();
         s.push();
-        s.image(grainBuffer, 0, 0);
+        s.image(s.grainBuffer, 0, 0);
         s.pop();
     }
 
