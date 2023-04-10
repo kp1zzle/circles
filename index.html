@@ -1,1 +1,12 @@
-<!doctype html><html><head><title>circles</title><meta charset="utf-8"><link rel="stylesheet" href="./style.css"></head><body><div class="popup" id="controlPanel"><div class="banner">control panel</div><label for="radius">radius</label><input id="radius" type="number" value="0"/> <label for="spacing">spacing</label><input id="spacing" type="number" value="0"/> <label for="disturbance">disturbance</label><input id="disturbance" type="number" value="0"/> <label for="min_margin">min margin</label><input id="min_margin" type="number" value="0"/> <label for="tightness">tightness</label><input id="tightness" type="number" value="0"/><p>press ESC to close</p></div><div class="popup" id="mobileWelcomeScreen" style="visibility: hidden"><div class="banner"><button id="closeButton">X</button> circles</div><p>by kieran</p><button onclick="requestDeviceMotionPermission()">Click here to give motion permissions</button></div><script defer="defer" src="./bundle.js"></script></body></html>
+<!doctype html><html><head><title>circles</title><meta charset="utf-8"><link rel="stylesheet" href="./style.css"></head><body><div class="popup" id="controlPanel"><div class="banner">control panel</div><label for="radius">radius</label><input id="radius" type="number" value="0"/> <label for="spacing">spacing</label><input id="spacing" type="number" value="0"/> <label for="disturbance">disturbance</label><input id="disturbance" type="number" value="0"/> <label for="min_margin">min margin</label><input id="min_margin" type="number" value="0"/> <label for="tightness">tightness</label><input id="tightness" type="number" value="0"/><p>press ESC to close</p></div><div class="popup" id="mobileWelcomeScreen" style="visibility: hidden"><div class="banner"><button id="closeButton">X</button> circles</div><p>by kieran</p><button onclick="requestDeviceMotionPermission()">Click here to give motion permissions</button></div><script>function requestDeviceMotionPermission() {
+    // feature detect
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission()
+            .then(permissionState => {
+                if (permissionState === 'granted') {
+                    window.addEventListener('devicemotion', () => {});
+                }
+            })
+            .catch(console.error);
+    }
+}</script><script defer="defer" src="./bundle.js"></script></body></html>
