@@ -24,16 +24,19 @@ canvas {
 
 .popup {
   position: absolute;
-  max-height: 800px;
-  max-width: 300px;
+
+  width: 375px;
   background-color: black;
   border-width: 5px;
   border-color: white;
-  visibility: hidden;
-  overflow-y:auto;
   font-family: "Lucida Console", "Courier New", monospace;
   flex-direction: column;
   align-items: flex-start;
+}
+
+.popupContentContainer {
+  overflow-y:auto;
+  max-height: 70vh;
 }
 
 .popup input {
@@ -67,22 +70,136 @@ canvas {
   background: white;
   color: black;
   margin: 10px 10px 10px 10px;
-  padding: 5px;
   font-size: 1em;
   text-align: center;
+  vertical-align: center;
 }
 
-.popup #closeButton {
-  float: left;
+.popup .banner:has(.button-54) {
+  display: flex;
+  padding: 5px;
 }
 
-.popup p, .mobileWelcomeScreen {
+.popup .banner h1 {
+  color: black;
+  text-align: center;
+  text-decoration-style: wavy;
+  font-size: 2em;
+  padding: 0px;
+  margin: 0 auto;
+}
+
+.popup .banner a {
+  color: black;
+  text-align: center;
+  font-size: 1em;
+  padding: 0px;
+  margin: 0px;
+}
+
+.popup .banner p {
+  color: black;
+  text-align: center;
+  font-size: 1em;
+  padding: 0px;
+  margin: 0;
+  display: inline;
+}
+
+.popup .popupContentContainer .banner a {
+  color: black;
+  text-align: center;
+  font-size: 0.8em;
+  padding: 0px;
+  margin: 0px;
+}
+
+
+.popup p {
   color: white;
   text-align: center;
+  padding: 0px;
+  margin: 15px;
+}
+
+.popup h1 {
+  color: white;
+  font-weight: normal;
+  text-align: left;
+  padding: 0px;
+  margin: 10px;
+}
+
+.popup dl {
+  color: white;
+  margin: 15px;
+}
+
+.popup .notice {
+  margin: 10px 10px 10px 10px;
+  padding: 5px;
+  border: 4px dotted white;
+
+}
+
+
+.button-54 {
+  font-family: "Open Sans", sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #000000;
+  cursor: pointer;
+  border: 3px solid;
+  padding: 0.25em 0.5em;
+  box-shadow: 1px 1px 0px 0px, 2px 2px 0px 0px, 3px 3px 0px 0px, 4px 4px 0px 0px, 5px 5px 0px 0px;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button-54:active {
+  box-shadow: 0px 0px 0px 0px;
+  top: 5px;
+  left: 5px;
+}
+
+@media (min-width: 768px) {
+  .button-54 {
+    padding: 0.25em 0.75em;
+  }
+}
+
+
+#deviceMotionButton {
+  width: 98%;
+  color: white;
+  background: #ce3c3c;
+  alignment: center;
+  margin: 0px 0px 5px 0px;
+}
+
+#closeWelcomeScreenButton, #closeControlPanelButton {
+  margin: 0px 0px 5px 0px;
+  display: inline;
+  float: left;
+  background: white;
 }
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+dt {
+  font-weight: bold;
+  display: inline;
+}
+dd {
+  margin: 0;
+  padding: 0 0 0.9em 25px;
+  display: block;
 }
