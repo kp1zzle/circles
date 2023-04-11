@@ -4,24 +4,100 @@
     <title>circles</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="./style.css">
+    <meta content="width=device-width, initial-scale=1, minimum-scale=1, user-scalable=no" name="viewport">
 </head>
 <body>
-<div class="popup" id="controlPanel">
-    <div class="banner"> control panel </div>
-    <label for="radius">radius</label><input id="radius" type="number" value="0"/>
-    <label for="spacing">spacing</label><input id="spacing" type="number" value="0"/>
-    <label for="disturbance">disturbance</label><input id="disturbance" type="number" value="0"/>
-    <label for="min_margin">min margin</label><input id="min_margin" type="number" value="0"/>
-    <label for="tightness">tightness</label><input id="tightness" type="number" value="0"/>
-    <p>press ESC to close</p>
-</div>
-<div class="popup" id="mobileWelcomeScreen" style="visibility: hidden">
+<div class="popup" id="controlPanel" style="display: none">
     <div class="banner">
-        <button id="closeButton">X</button>
-        circles
+        <button class="button-54" id="closeControlPanelButton">X</button>
+        <h1>control panel </h1>
     </div>
-    <p>by kieran</p>
-    <button onClick="requestDeviceMotionPermission()">Click here to give motion permissions</button>
+    <div class="popupContentContainer">
+        <label for="radius">radius</label><input id="radius" type="number" value="0"/>
+        <label for="spacing">spacing</label><input id="spacing" type="number" value="0"/>
+        <label for="disturbance">disturbance</label><input id="disturbance" type="number" value="0"/>
+        <label for="min_margin">min margin</label><input id="min_margin" type="number" value="0"/>
+        <label for="tightness">tightness</label><input id="tightness" type="number" value="0"/>
+        <p>press ESC to close</p>
+    </div>
+</div>
+<div class="popup" id="welcomeScreen">
+
+    <div class="banner">
+        <button class="button-54" id="closeWelcomeScreenButton">X</button>
+        <h1>circles</h1>
+        <p>by <a href="https://twitter.com/0xP4r1kh">kieran</a></p>
+    </div>
+    <div class="popupContentContainer">
+    <div class="notice" id="motionNotice" style="display: none">
+    <p>This app works best with device motion data. Click the button below to allow access: </p>
+
+    <button onClick="requestDeviceMotionPermission()" id="deviceMotionButton" class="button-54">Allow access to device motion data</button>
+    </div>
+        <p>
+            circles is an interactive parametric art piece that explores how a simple parametric drawing algorithm can
+            create wildly different images. users are invited to interact with the piece using touch, motion, and traditional
+            peripherals to see how it reacts to changing parameters.
+        </p>
+    <div id="touchInstructions" style="display: none">
+    <h1>DRAG</h1>
+    <dl>
+        <dt>👆🏽↔️ 1 finger left/right </dt>
+        <dd>increase/decrease circle radius</dd>
+        <dt>👆🏽↕️ 1 finger up/down </dt>
+        <dd>increase/decrease disturbance amplitude</dd>
+        <dt>✌🏽↔️ 2 fingers left/right </dt>
+        <dd>increase/decrease spacing between circles</dd>
+        <dt>✌🏽↕️ 2 fingers up/down </dt>
+        <dd>increase/decrease margin</dd>
+    </dl>
+    <h1>MOVE</h1>
+    <p>move your device to make the circles rotate faster</p>
+    <h1>TAP</h1>
+    <dl>
+        <dt>👆🏽👆🏽👆🏽 3 fingers </dt>
+        <dd>change colors</dd>
+        <dt>👆🏽👆🏽👆🏽👆🏽 4 fingers </dt>
+        <dd>open control panel</dd>
+    </dl>
+    </div>
+    <div id="desktopInstructions" style="display: none">
+        <h1>SCROLL</h1>
+        <dl>
+            <dt>scroll in/out</dt>
+            <dd>increase/decrease circle radius</dd>
+            <dt>hold z + scroll in/out</dt>
+            <dd>increase/decrease spacing between circles</dd>
+            <dt>hold x + scroll in/out</dt>
+            <dd>increase/decrease disturbance amplitude</dd>
+            <dt>hold c + scroll in/out</dt>
+            <dd>increase/decrease margin</dd>
+            <dt>hold c + scroll in/out</dt>
+            <dd>increase/decrease shape tightness</dd>
+        </dl>
+        <h1>MOVE</h1>
+        <p>move your cursor to make the circles rotate faster</p>
+        <h1>BUTTONS</h1>
+        <dl>
+            <dt>spacebar </dt>
+            <dd>change colors</dd>
+            <dt>escape</dt>
+            <dd>open control panel</dd>
+            <dt>s</dt>
+            <dd>save image</dd>
+            <dt>f</dt>
+            <dd>save image</dd>
+            <dt>+</dt>
+            <dd>increase number of points per circle</dd>
+            <dt>-</dt>
+            <dd>decrease number of points per circle</dd>
+        </dl>
+    </div>
+
+    <div class="banner">
+        <a href="https://github.com/kp1zzle/circles">view code on github</a>
+    </div>
+    </div>
 </div>
 <script>
     function requestDeviceMotionPermission() {

@@ -16,7 +16,7 @@ let sketch = (s) => {
     s.speedMultiple = 80
     s.backgroundColor = s.color(255)
     s.strokeColor = s.color(0)
-    s.minMargin = 200
+    s.minMargin = 30
     s.displacementAmplitude = 50
     s.canvasWidth = 0
     s.canvasHeight = 0
@@ -24,6 +24,7 @@ let sketch = (s) => {
     s.fillCircles = false
     s.hasMotionPermission = false
     s.paused = false
+    s.maxCircles = 5000
 
     s.setup = () => {
         s.stopTouchScrolling()
@@ -47,8 +48,13 @@ let sketch = (s) => {
         s.noFill();
         s.curveTightness(s.tightness)
         // s.noLoop()
+        let circleNum = 0
         for (let r = 0; r < s.rows; r++) {
             for (let c = 0; c < s.columns; c++) {
+                circleNum += 1
+                if (circleNum > s.maxCircles) {
+                    break;
+                }
                 let rotation = s.noise((r*s.columns)+c, s.t / (s.speedMultiple)) * 360 * 2
                 if (s.fillCircles) {
                     s.fill(s.strokeColor)
@@ -68,6 +74,9 @@ let sketch = (s) => {
                 s.noFill();
 
                 s.translate(2* s.radius + s.spacing, 0);
+            }
+            if (circleNum > s.maxCircles) {
+                break;
             }
             s.translate(-s.columns * (2* s.radius + s.spacing), 2*s.radius + s.spacing)
         }
@@ -91,7 +100,7 @@ let sketch = (s) => {
 
     s.mouseWheel = (event) => {
         // Disable all other keys if control panel is visible
-        if (s.controlPanelIsDisplayed()) {
+        if (s.anyPopupIsDisplayed()) {
             return
         }
 
@@ -122,7 +131,7 @@ let sketch = (s) => {
     }
 
     s.mouseClicked = () => {
-        if (s.controlPanelIsDisplayed()) {
+        if (s.anyPopupIsDisplayed() || s.supportsTouch()) {
             return
         }
 
@@ -135,7 +144,7 @@ let sketch = (s) => {
         }
 
         // Disable all other keys if control panel is visible
-        if (s.controlPanelIsDisplayed()) {
+        if (s.anyPopupIsDisplayed()) {
             return
         }
 
@@ -179,6 +188,10 @@ let sketch = (s) => {
     // Mobile Controls
 
     s.touchStarted = () => {
+        if (s.anyPopupIsDisplayed()) {
+            return
+        }
+
         switch (s.touches.length) {
             case 3:
                 s.randomizeColors()
@@ -191,6 +204,10 @@ let sketch = (s) => {
     }
 
     s.touchMoved = () => {
+        if (s.anyPopupIsDisplayed()) {
+            return
+        }
+
         let deltaX = s.mouseX - s.pmouseX
         let deltaY = s.mouseY - s.pmouseY
         switch (s.touches.length) {
@@ -362,9 +379,14 @@ let sketch = (s) => {
             s.tightness = +tightness.value()
         });
 
-        let closeButton = s.select('#mobileWelcomeScreen #closeButton')
-        closeButton.elt.addEventListener("click",() => {
-            s.select('#mobileWelcomeScreen').style('visibility', 'hidden');
+        let closeWelcomeScreenButton = s.select('#closeWelcomeScreenButton')
+        closeWelcomeScreenButton.elt.addEventListener("click",() => {
+            s.select('#welcomeScreen').style('display', 'none');
+        });
+
+        let closeControlPanelButton = s.select('#closeControlPanelButton')
+        closeControlPanelButton.elt.addEventListener("click",() => {
+           s.toggleControlPanelVisibility()
         });
     }
 
@@ -376,28 +398,45 @@ let sketch = (s) => {
         s.select('#tightness').value(s.round(s.tightness, 2));
     }
 
-    s.controlPanelIsDisplayed = () => {
-       return s.select('#controlPanel').style('visibility') === 'visible';
+    s.anyPopupIsDisplayed = () => {
+        let popups = s.selectAll('.popup')
+
+        for (const el of popups) {
+            if (el.style('display') === 'block') {
+                return true
+            }
+        }
+        return false
     }
 
     s.toggleControlPanelVisibility = () => {
-        if (s.controlPanelIsDisplayed()) {
-            s.select('#controlPanel').style('visibility', 'hidden')
+        if (s.select('#controlPanel').style('display') === 'block') {
+            s.select('#controlPanel').style('display', 'none')
         } else {
             s.updateControlPanelValues()
-            s.select('#controlPanel').style('visibility', 'visible')
+            s.select('#controlPanel').style('display', 'block')
         }
     }
 
-    s.isMobileClient = () => {
+    s.supportsMotion = () => {
         return typeof DeviceMotionEvent !== 'undefined'
     }
 
-    s.displayInstructionPane = () => {
-        if (s.isMobileClient()) {
-            s.select('#mobileWelcomeScreen').style('visibility', 'visible')
-        } else {
+    s.supportsTouch = () => {
+        return (('ontouchstart' in window) ||
+            (navigator.maxTouchPoints > 0) ||
+            (navigator.msMaxTouchPoints > 0));
+    }
 
+    s.displayInstructionPane = () => {
+        if (s.supportsMotion()) {
+            s.select('#motionNotice').style('display', 'block')
+        }
+
+        if (s.supportsTouch()) {
+            s.select('#touchInstructions').style('display', 'block')
+        } else {
+            s.select('#desktopInstructions').style('display', 'block')
         }
     }
 
