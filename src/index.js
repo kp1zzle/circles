@@ -127,6 +127,7 @@ let sketch = (s) => {
             //     s.radius = 300
             // }
         }
+        s.enforceParameterLimits()
 
     }
 
@@ -220,6 +221,7 @@ let sketch = (s) => {
                 s.minMargin += deltaY/10
                 break
         }
+        s.enforceParameterLimits()
     }
 
     s.deviceMoved = () => {
@@ -437,6 +439,12 @@ let sketch = (s) => {
             s.select('#touchInstructions').style('display', 'block')
         } else {
             s.select('#desktopInstructions').style('display', 'block')
+        }
+    }
+
+    s.enforceParameterLimits = () => {
+        if (s.radius <= -23) {
+            s.radius = -23
         }
     }
 
